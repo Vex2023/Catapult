@@ -62,6 +62,57 @@ void pre_auton(void) {
 }
 
 /*---------------------------------------------------------------------------*/
+/*                          custom defined Functions                         */
+/*                                                                           */
+                          
+/*---------------------------------------------------------------------------*/
+
+/**********************************/
+void fireCata(){ //fires catapult
+    cata.spinFor(reverse, 120, degrees, 40, velocityUnits::pct); //loading
+    //wait(0.5,sec);
+    cata.spinFor(reverse, 240, degrees, 40, velocityUnits::pct); //fire and back to original position
+}
+
+/**********************************/
+void runChassis (int leftSpeed, int rightSpeed)
+{
+  //set the wheel motor torque to max
+  fl.setMaxTorque(100,pct);
+  ml.setMaxTorque(100,pct);
+  bl.setMaxTorque(100,pct);
+  fr.setMaxTorque(100,pct);
+  mr.setMaxTorque(100,pct);
+  br.setMaxTorque(100,pct);
+
+  leftDrive.spin(fwd, leftSpeed, pct);
+  rightDrive.spin(fwd, rightSpeed, pct);
+}
+
+
+/*************************************/
+void frontBrake()
+{
+  fl.stop(brake); 
+  fr.stop(brake);
+  ml.stop(brake);
+  mr.stop(brake);
+  bl.stop(coast);
+  br.stop(coast);
+}
+
+/*************************************/
+void rearBrake()
+{
+  fl.stop(coast); 
+  fr.stop(coast);
+  ml.stop(brake);
+  mr.stop(brake);
+  bl.stop(brake);
+  br.stop(brake);
+}
+
+/*---------------------------------------------------------------------------*/
 /*                                                                           */
 /*                              Autonomous Task                              */
 /*                                                                           */
@@ -70,6 +121,8 @@ void pre_auton(void) {
 /*                                                                           */
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
+
+
 
 void autonomous(void) {
   // ..........................................................................
@@ -98,10 +151,28 @@ void usercontrol(void) {
     // Insert user code here. This is where you use the joystick values to
     // update your motors, etc.
     // ........................................................................
-    rightDrive.spin(fwd);
+    /*rightDrive.spin(fwd);
     leftDrive.spin(fwd);
     rightDrive.setVelocity(Controller1.Axis2.position()-(0.5*Controller1.Axis1.position()),pct);
-    leftDrive.setVelocity(Controller1.Axis2.position()+(0.5*Controller1.Axis1.position()),pct);
+    leftDrive.setVelocity(Controller1.Axis2.position()+(0.5*Controller1.Axis1.position()),pct);*/
+
+    int a1 = Controller1.Axis1.position();
+    int a2 = Controller1.Axis2.position();
+    cout<<"a1="<<a1<<" a2="<<a2<<"\n";
+    if (abs(a1)>10 || abs(a2)>10) //to avoid joystick drift and random touch
+    {
+      int leftSpeed = a2 + a1*0.6; //0.4 is used to reduce to the turn speed
+      int rightSpeed = a2 - a1*0.6; //0.4 is used to reduce to the turn speed
+      runChassis(leftSpeed,rightSpeed);
+    }
+    else
+    {
+      if(bl.direction()==fwd || br.direction()==fwd) 
+        frontBrake();
+      else rearBrake();
+    }
+
+
     
     if(Controller1.ButtonR1.pressing()){ //fire catapult
       //cata.spinToPosition(-80,degrees);0
@@ -153,22 +224,18 @@ void usercontrol(void) {
   }
 }
 
-void fireCata(){
-    cata.spinFor(reverse, 120, degrees, 40, velocityUnits::pct);
-    //wait(0.5,sec);
-    cata.spinFor(reverse, 240, degrees, 40, velocityUnits::pct);  
-}
+
 
 
 void skill(){
-  Flingy.driveFor(fwd, 8, inches);
-  Flingy.turnToHeading(315, deg);
-  Flingy.driveFor(fwd, 2, inches);
-  Flingy.drive(fwd, 3, velocityUnits::pct);
+  Flingy.driveFor(fwd, 8, inches); //move drivetrain to approx. loading position
+  Flingy.turnToHeading(315, deg); //align both wheels
+  Flingy.driveFor(fwd, 2, inches); //both wheels touch loading bar, more stable
+  Flingy.drive(fwd, 3, velocityUnits::pct); //prevents wheels from bouncing off bar, pushes against bar
   for(int iter = 0; iter < 43; ++iter){
     
-    cout<< "iter= "<<iter<<"\n";
-    fireCata();
+    cout<< "iter= "<<iter<<"\n"; //print number of times fired
+    fireCata(); //fires catapult
   }
 }
 //
