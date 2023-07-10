@@ -226,7 +226,7 @@ void usercontrol(void) {
 
 
 
-
+/*************************************/
 void skill(){
   Flingy.driveFor(fwd, 8, inches); //move drivetrain to approx. loading position
   Flingy.turnToHeading(315, deg); //align both wheels
@@ -239,12 +239,36 @@ void skill(){
   }
 }
 //
+
+/*************************************/
+/*Auton program for goal side
+  Starts with a preload in the fork
+  Places preload into the goal
+  Then, gets the green acorn in the middle into the goal*/
+
+void goalSideScoring(){
+  /*Pushes the preload into the goal*/
+  Flingy.driveFor(fwd, 44, inches, 50, velocityUnits::pct);
+  Flingy.setTurnVelocity(15, velocityUnits::pct);
+  Flingy.turnToHeading(90, degrees);
+  Flingy.setTimeout(2, sec);
+  Flingy.driveFor(fwd, 14, inches);
+
+  /*Get the middle green acorn and pushes it into the goal*/
+  Flingy.driveFor(reverse, 35, inches, 50, velocityUnits::pct);
+  Flingy.turnFor(vex::left, 35, degrees);
+  Flingy.driveFor(fwd, 15, inches, 50, velocityUnits::pct);
+  Flingy.turnFor(vex::right, 35, degrees);
+  Flingy.driveFor(fwd, 23, inches, 50, velocityUnits::pct);
+  
+}
 // Main will set up the competition functions and callbacks.
 //
 int main() {
   pre_auton();
   // Set up callbacks for autonomous and driver control periods.
-  Competition.autonomous(skill); //slot 2
+  //Competition.autonomous(skill); //slot 1
+  Competition.autonomous(goalSideScoring); //slot 2
   //Competition.autonomous(autonomous);
   Competition.drivercontrol(usercontrol);
 
