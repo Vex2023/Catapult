@@ -161,8 +161,8 @@ void usercontrol(void) {
     cout<<"a1="<<a1<<" a2="<<a2<<"\n";
     if (abs(a1)>10 || abs(a2)>10) //to avoid joystick drift and random touch
     {
-      int leftSpeed = a2 + a1*0.6; //0.4 is used to reduce to the turn speed
-      int rightSpeed = a2 - a1*0.6; //0.4 is used to reduce to the turn speed
+      int leftSpeed = a2 + a1*0.6; //0.6 is used to reduce to the turn speed
+      int rightSpeed = a2 - a1*0.6; //0.6 is used to reduce to the turn speed
       runChassis(leftSpeed,rightSpeed);
     }
     else
@@ -226,7 +226,7 @@ void usercontrol(void) {
 
 
 
-/*************************************/
+
 void skill(){
   Flingy.driveFor(fwd, 8, inches); //move drivetrain to approx. loading position
   Flingy.turnToHeading(315, deg); //align both wheels
@@ -238,7 +238,6 @@ void skill(){
     fireCata(); //fires catapult
   }
 }
-//
 
 /*************************************/
 /*Auton program for goal side
@@ -262,14 +261,16 @@ void goalSideScoring(){
   Flingy.driveFor(fwd, 23, inches, 50, velocityUnits::pct);
   
 }
+
+//
 // Main will set up the competition functions and callbacks.
 //
 int main() {
   pre_auton();
   // Set up callbacks for autonomous and driver control periods.
-  //Competition.autonomous(skill); //slot 1
-  Competition.autonomous(goalSideScoring); //slot 2
-  //Competition.autonomous(autonomous);
+  //Competition.autonomous(skill); //slot 2
+  //Competition.autonomous(fireCata);
+  Competition.autonomous(fireCata);
   Competition.drivercontrol(usercontrol);
 
   // Run the pre-autonomous function.
