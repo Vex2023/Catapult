@@ -158,7 +158,7 @@ void usercontrol(void) {
 
     int a1 = Controller1.Axis1.position();
     int a2 = Controller1.Axis2.position();
-    cout<<"a1="<<a1<<" a2="<<a2<<"\n";
+   // cout<<"a1="<<a1<<" a2="<<a2<<"\n";
     if (abs(a1)>10 || abs(a2)>10) //to avoid joystick drift and random touch
     {
       int leftSpeed = a2 + a1*0.6; //0.6 is used to reduce to the turn speed
@@ -239,13 +239,12 @@ void skill(){
   }
 }
 
-/*************************************/
+/***********************************************************************/
 /*Auton program for goal side
   Starts with a preload in the fork
   Places preload into the goal
   Then, gets the green acorn in the middle into the goal*/
-
-void goalSideScoring(){
+void goalSideAuton(){
   /*Pushes the preload into the goal*/
   Flingy.driveFor(fwd, 44, inches, 50, velocityUnits::pct);
   Flingy.setTurnVelocity(15, velocityUnits::pct);
@@ -258,19 +257,30 @@ void goalSideScoring(){
   Flingy.turnFor(vex::left, 35, degrees);
   Flingy.driveFor(fwd, 15, inches, 50, velocityUnits::pct);
   Flingy.turnFor(vex::right, 35, degrees);
-  Flingy.driveFor(fwd, 23, inches, 50, velocityUnits::pct);
-  
+  Flingy.driveFor(fwd, 23, inches, 50, velocityUnits::pct); 
 }
 
+/***********************************************************************/
+/*Auton program for match load side
+  Starts with a preload in the catapult
+  Shoots preload
+  Rams green triball under the bar
+  */
+void matchLoadSideAuton(){
+  fireCata();
+  Flingy.driveFor(reverse, 24, inches, 90, velocityUnits::pct);
+}
 //
 // Main will set up the competition functions and callbacks.
 //
 int main() {
   pre_auton();
   // Set up callbacks for autonomous and driver control periods.
-  //Competition.autonomous(skill); //slot 2
-  //Competition.autonomous(fireCata);
-  Competition.autonomous(fireCata);
+  //Competition.autonomous(skill); //slot 1
+  //Competition.autonomous(goalSideAuton); //slot 2
+  Competition.autonomous(matchLoadSideAuton); //slot 3
+  //Competition.autonomous(fireCata); //slot 3
+
   Competition.drivercontrol(usercontrol);
 
   // Run the pre-autonomous function.
