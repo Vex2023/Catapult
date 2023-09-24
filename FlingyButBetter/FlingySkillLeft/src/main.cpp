@@ -193,7 +193,8 @@ void shootFromLoadingPos() // make cata shoot from loaded position
   // cata.spinToPosition()
 }
 void continuousShoot(){
-  wait(0.2,sec);
+  cata.spinFor(reverse, 155,deg);
+  wait(0.4,sec);
   while(true)
   {
     if(Controller1.ButtonL1.pressing()){
@@ -204,9 +205,9 @@ void continuousShoot(){
       cata.spinFor(reverse, 360, degrees, 90, velocityUnits::pct);
       double current_position = cata.position(degrees);
       cout<<"pos after fire="<<current_position<<"\n";
+      wait(0.5,sec);
     }
   }
-  wait(1.5,sec);
 }
 void printTemps()
 {
@@ -384,23 +385,22 @@ void goalSideAuton() {
   Flingy.setTurnVelocity(15, velocityUnits::pct);
   toggleClaw();//open claw
   Flingy.driveFor(reverse, 2, inches, 40, velocityUnits::pct); //shake claw
-  Flingy.driveFor(fwd, 2, inches, 40, velocityUnits::pct);
+  Flingy.driveFor(fwd, 2, inches, 40, velocityUnits::pct); //shake claw
   toggleClaw();//close claw
   Flingy.driveFor(fwd, 32, inches, 40, velocityUnits::pct);
-  Flingy.turnToHeading(80, deg);
-  Flingy.driveFor(fwd, 6, inches, 50, velocityUnits::pct);
-  toggleClaw();
-  Flingy.driveFor(reverse, 10.5, inches, 40, velocityUnits::pct);
-  Flingy.turnToHeading(235, deg);
-  wait(0.5,sec);
-  Flingy.driveFor(fwd, 7, inches, 40, velocityUnits::pct);
+  Flingy.turnToHeading(80, deg);//turn to position for pushing alliance acorn into goal
+  Flingy.driveFor(fwd, 6, inches, 50, velocityUnits::pct); //push alliance acorn into goal
+  toggleClaw(); //open claw
+  Flingy.driveFor(reverse, 10.5, inches, 40, velocityUnits::pct); //get out of goal
+  Flingy.turnToHeading(235, deg); //turn into position to grab green acorn touching long barrier
+  Flingy.driveFor(fwd, 7, inches, 40, velocityUnits::pct); //drive forward so that acorn gets into claw
   claw.setTimeout(0.5, sec);
-  toggleClaw();
-  Flingy.driveFor(reverse, 5, inches, 40, velocityUnits::pct);
-  Flingy.turnToHeading(90, deg);
-  Flingy.driveFor(fwd, 12, inches, 40, velocityUnits::pct);
-  toggleClaw();
-  Flingy.driveFor(reverse, 12, inches, 40, velocityUnits::pct);
+  toggleClaw(); //close claw
+  Flingy.driveFor(reverse, 5, inches, 40, velocityUnits::pct); //get away from long barrier
+  Flingy.turnToHeading(90, deg); //turn into position to push green acorn into goal
+  Flingy.driveFor(fwd, 12, inches, 40, velocityUnits::pct); //push acorn into goal
+  toggleClaw(); //open claw
+  Flingy.driveFor(reverse, 12, inches, 40, velocityUnits::pct); //get out of goal, so easier for driver
  // Flingy.driveFor(fwd, 6, inches, 40, velocityUnits::pct);
   //toggleClaw();
   //Flingy.driveFor(reverse, 5, inches, 40, velocityUnits::pct);
@@ -423,8 +423,8 @@ int main() {
   Controller1.ButtonX.pressed(shootFromLoadingPos);
   Controller1.ButtonL1.pressed(continuousShoot);
   //Competition.autonomous(skill); //slot 1
-  //Competition.autonomous(goalSideAuton); //slot 2
-  Competition.autonomous(matchLoadSideAuton_1); //slot 3
+  Competition.autonomous(goalSideAuton); //slot 2
+ // Competition.autonomous(matchLoadSideAuton_1); //slot 3
   //Competition.autonomous(matchLoadSideAuton_2); //slot 4
 
   //Competition.autonomous(fireCata); //slot 3

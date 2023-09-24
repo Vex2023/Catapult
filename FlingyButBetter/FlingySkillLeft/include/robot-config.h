@@ -11,6 +11,8 @@ extern motor fl;
 extern motor fr;
 extern motor cata;
 extern controller Controller1;
+extern inertial InertialSensor;
+extern motor claw;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
