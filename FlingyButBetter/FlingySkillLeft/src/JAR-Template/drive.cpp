@@ -114,14 +114,34 @@ void Drive::turn_to_angle(float angle, float turn_max_voltage, float turn_settle
 
 void Drive::turn_to_angle(float angle, float turn_max_voltage, float turn_settle_error, float turn_settle_time, float turn_timeout, float turn_kp, float turn_ki, float turn_kd, float turn_starti){
   desired_heading = angle;
-  PID turnPID(reduce_negative_180_to_180(angle - get_absolute_heading()), turn_kp, turn_ki, turn_kd, turn_starti, turn_settle_error, turn_settle_time, turn_timeout);
-  while(turnPID.is_settled() == false){
+  // template original
+  //PID turnPID(reduce_negative_180_to_180(angle - get_absolute_heading()), turn_kp, turn_ki, turn_kd, turn_starti, turn_settle_error, turn_settle_time, turn_timeout);
+  
+  //mine
+  
+  float error =reduce_negative_180_to_180(angle - get_absolute_heading());
+  PID turnPID(error, turn_kp, turn_ki, turn_kd, turn_starti, turn_settle_error, turn_settle_time, turn_timeout); 
+  cout<<"********angle="<<angle<<" error="<<error<<" heading = "<<get_absolute_heading()<<"\n";
+
+  while( turnPID.is_settled()== false){
     float error = reduce_negative_180_to_180(angle - get_absolute_heading());
+    
+
+/*
+    if(fabs(error)<turn_settle_error) {
+      cout<<"******error="<<error<<" break\n";
+      break;
+    }
+    */
     float output = turnPID.compute(error);
+    
     output = clamp(output, -turn_max_voltage, turn_max_voltage);
+   // cout<<"angle="<<angle<<" error="<<error<<" heading = "<<get_absolute_heading()<<" output ="<<output<<"settle ="<<turnPID.is_settled()<<"\n";
+
     drive_with_voltage(output, -output);
     task::sleep(10);
   }
+  
   DriveL.stop(hold);
   DriveR.stop(hold);
 }
