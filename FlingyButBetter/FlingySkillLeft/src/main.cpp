@@ -117,8 +117,11 @@ PORT3,     -PORT4,
 );
 
 int current_auton_selection = 0;
-bool auto_started = false;
+bool auto_started = false; //for competition
+//bool auto_started = true; //for driver practice
 bool clawClosed = true;
+bool cataStop = true;
+
 void printTemps()
 {
       Brain.Screen.clearScreen();
@@ -150,7 +153,7 @@ void goLoadingPos() //make cata go down to loaded position
 {
   double current_position = cata.position(degrees);
   //cata.spinToPosition(30,degrees);
-  cata.spinFor(reverse, 120, degrees, 40, velocityUnits::pct);
+  cata.spinFor(reverse, 120, degrees, 40, velocityUnits::pct,true);
   current_position = cata.position(degrees);
   // cata.spinToPosition()
 }
@@ -165,26 +168,36 @@ void shootFromLoadingPos() // make cata shoot from loaded position
 }
 
 void continuousShoot(){
-  
-  //cata.spinFor(reverse, 155,deg);
-  cata.spinToPosition(-155, degrees);
-  double current_position = cata.position(degrees);
-  cout<< "load position: " << current_position<< "\n";
+  cataStop = false;
+  float current_position = cata.position(degrees);
+
+  float degreeToSpin = (155-(int)current_position)%360;
+  cata.spinFor(reverse, degreeToSpin,deg);
+  //cata.spinToPosition(-155, degrees);
+  //cata.spinToPosition(205, degrees);
+  current_position = cata.position(degrees);
+  cout<< "load position: " << current_position<< endl;
   wait(0.3,sec);
   while(true)
   {
-    if(Controller1.ButtonL1.pressing()){
-      cata.spinFor(reverse, 205-current_position, degrees);
+    cata.spinFor(reverse, 360, degrees, 90, velocityUnits::pct);
+    
+    current_position = cata.position(degrees);
+    //if(Controller1.ButtonL1.pressing()){
+    cout<<"cataStop="<<cataStop<<endl;
+    if(cataStop){
+      //cata.spinFor(reverse, 205-current_position, degrees);
       break;
-    }
-    else
-    {
-      cata.spinFor(reverse, 360, degrees, 90, velocityUnits::pct);
-      double current_position = cata.position(degrees);
     }
     wait(0.3,sec);
   }
 }
+
+void stopShoot() {
+  cout<< "stopped"<<endl;
+  cataStop=true;
+}
+
 void toggleClaw()
 {
   if(!clawClosed)
@@ -197,6 +210,19 @@ void toggleClaw()
     claw.spinToPosition(78, degrees);
     // claw.spinFor(reverse, 70, degrees, 30, velocityUnits::pct);
     clawClosed = false;
+  }
+}
+
+void skill(){
+  Flingy.driveFor(fwd, 8, inches); //move drivetrain to approx. loading position
+  Flingy.turnToHeading(315, deg); //align both wheels
+  Flingy.driveFor(fwd, 2, inches); //both wheels touch loading bar, more stable
+  Flingy.drive(fwd, 3, velocityUnits::pct); //prevents wheels from bouncing off bar, pushes against bar
+  for(int iter = 0; iter < 43; ++iter){
+    
+    cout<< "iter= "<<iter<<"\n"; //print number of times fired
+    goLoadingPos(); //fires catapult
+    shootFromLoadingPos();
   }
 }
 
@@ -319,6 +345,8 @@ void rearBrake()
 }
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
+  Brain.Screen.setFont(vex::fontType::mono30);
+  
   vexcodeInit();
   Inertial.calibrate();
   default_constants();
@@ -329,7 +357,8 @@ void pre_auton(void) {
 
 
   while(auto_started == false){            //Changing the names below will only change their names on the
-    Brain.Screen.clearScreen();            //brain screen for auton selection.
+    Brain.Screen.clearScreen();
+           //brain screen for auton selection.
     switch(current_auton_selection){       //Tap the brain screen to cycle through autons.
       case 0:
         Brain.Screen.printAt(50, 50, "Goal Side Touch Elevation");
@@ -341,7 +370,7 @@ void pre_auton(void) {
         Brain.Screen.printAt(50, 50, "Match Load Side");
         break;
       case 3:
-        Brain.Screen.printAt(50, 50, "drive Test");
+        Brain.Screen.printAt(50, 50, "Skills");
         break;
       case 4:
         Brain.Screen.printAt(50, 50, "turn Test");
@@ -372,7 +401,7 @@ void autonomous(void) {
       matchLoadSide();
       break;
     case 3:
-      drive_test();
+      skill();
       break;
     case 4:
       turn_test();
@@ -478,6 +507,7 @@ int main() {
   Controller1.ButtonB.pressed(goLoadingPos);
   Controller1.ButtonX.pressed(shootFromLoadingPos);
   Controller1.ButtonL1.pressed(continuousShoot);
+  Controller1.ButtonL2.pressed(stopShoot);
   Competition.autonomous(autonomous);
   Competition.drivercontrol(usercontrol);
 
